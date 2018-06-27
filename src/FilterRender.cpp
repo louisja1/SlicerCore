@@ -8,12 +8,18 @@
 #include "Geometry.h"
 
 #include <algorithm>
+#include <iostream>
+
+#include <time.h>
 
 using namespace Geometry;
 
 const int threshold = 30;
 
 void* FilterRender::render(void *data, uint width, uint height, Config *config) {
+
+	//data = FilterRender::doColor(data, width, height, time(0)%255, time(0)*2%255, time(0)*3%255, 255);
+
 	if(config == NULL) return data;
 	int n = config->nFilters;
 
@@ -42,7 +48,7 @@ void* FilterRender::render(void *data, uint width, uint height, Config *config) 
 			case 3:
 			{
 				FilterAuto *f = (FilterAuto*)config->filters[i];
-				data = FilterAuto::doAuto(data, width, height);
+				data = FilterRender::doAuto(data, width, height);
 				break;
 			}
 
@@ -182,7 +188,8 @@ void* FilterRender::doSlice(void *data, uint width, uint height, std::vector<Poi
 	map = NULL;
 }
 
-void* FilterRender::doColor(void *data, uint width, uint height, double r, double g, double b, double a) {
+void* FilterRender::doColor(void *data, uint width, uint height, u_int8_t r, u_int8_t g, u_int8_t b, u_int8_t a) {
+	//std::cerr << "fuckyou" << std::endl;
 	unsigned char ***map;
 
 	map = new unsigned char**[height];
@@ -207,10 +214,10 @@ void* FilterRender::doColor(void *data, uint width, uint height, double r, doubl
 
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
-				map[i][j][0] = b;
-				map[i][j][1] = g;
-				map[i][j][2] = r;
-				map[i][j][3] = a;
+			double nw_sum = (1.*map[i][j][0] + map[i][j][1] + map[i][j][2])/(r+g+b);
+				map[i][j][0] = std::min(255., nw_sum*b);
+				map[i][j][1] = std::min(255., nw_sum*g);
+				map[i][j][2] = std::min(255., nw_sum*r);
 		}
 	}
 
@@ -242,9 +249,9 @@ void* FilterRender::doAuto(void *data, uint width, uint height) {
 	bool *all;
 
 	map = new unsigned char**[height];
-	le = new int*[height];
-	ri = new int*[height];
-	all = new bool*[height];
+	le = new int[height];
+	ri = new int[height];
+	all = new bool[height];
 
 	for (int i = 0; i < height; i++) {
 		map[i] = new unsigned char*[width];

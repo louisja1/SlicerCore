@@ -32,7 +32,7 @@
  *
  * [one filter]:
  *
- *      @int8_t type: 0-flip 1-slice 2-color
+ *      @int8_t type: 0-flip 1-slice 2-color 3-auto
  *
  *      [when type=0]
  *
@@ -56,6 +56,10 @@
  *          @u_int8_t b     : Blue(0~255)
  *          @u_int8_t alpha : Opacity(0~255)
  *
+ *      [when type=3]
+ *
+ *          (nothing...)
+ *
  */
 
 class ConfigManager
@@ -68,7 +72,7 @@ public:
 	static void storeConfig(int64_t id, Config config);
 
 
-	static void loadFilter(std::ifstream &in, Filter* filter);
+	static Filter* loadFilter(std::ifstream &in);
 	static void storeFilter(std::ofstream &out, Filter* filter);
 
 	static void loadFilter(std::ifstream &in, FilterFlip* filter);
@@ -79,7 +83,10 @@ public:
 	static void storeFilter(std::ofstream &out, FilterSlicer* filter);
 	static void storeFilter(std::ofstream &out, FilterColor* filter);
 
+	static void loadFilter(std::ifstream &in, FilterAuto* filter);
+	static void storeFilter(std::ofstream &out, FilterAuto* filter);
 
+	static bool test();
 
 
 
